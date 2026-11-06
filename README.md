@@ -49,3 +49,4 @@ Android APK 位于 `build/app/outputs/flutter-apk/app-release.apk`；Windows 产
 ## 数据来源
 
 MARD 291 色 RGB 数据来自公开色卡仓库：<https://github.com/HansBug/pindou-color-data>。色值为屏幕参考值，实际制作前建议与手中的实体豆色卡核对。
+=======
