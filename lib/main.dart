@@ -4,11 +4,16 @@ import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'models/bead_models.dart';
 import 'services/color_engine.dart';
 import 'services/image_processor.dart';
 import 'services/project_storage.dart';
+import 'services/cloud_project_storage.dart';
+import 'services/supabase_config.dart';
+import 'screens/auth_gate.dart';
+import 'screens/my_projects_screen.dart';
 
 const ink = Color(0xFF0A1145);
 const purple = Color(0xFF655EF3);
@@ -17,6 +22,10 @@ const muted = Color(0xFF8389AB);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.publishableKey,
+  );
   final colors = ColorEngine();
   await colors.load();
   runApp(PindouApp(colors: colors));
@@ -38,7 +47,7 @@ class PindouApp extends StatelessWidget {
         fontFamilyFallback: const ['Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC'],
         textTheme: const TextTheme(bodyMedium: TextStyle(color: ink, fontSize: 16)),
       ),
-      home: ImportScreen(colors: colors),
+      home: AuthGate(colors: colors),
     );
   }
 }
@@ -50,11 +59,13 @@ class AppFrame extends StatelessWidget {
     required this.body,
     this.bottom,
     this.onBack,
+    this.trailing,
   });
   final String title;
   final Widget body;
   final Widget? bottom;
   final VoidCallback? onBack;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +82,7 @@ class AppFrame extends StatelessWidget {
                     children: [
                       CircleIcon(icon: Icons.arrow_back_ios_new_rounded, onTap: onBack ?? () {}),
                       Expanded(child: Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w700, color: ink))),
-                      const CircleIcon(icon: Icons.more_horiz_rounded),
+                      trailing ?? const CircleIcon(icon: Icons.more_horiz_rounded),
                     ],
                   ),
                 ),
@@ -131,7 +142,7 @@ class GradientButton extends StatelessWidget {
 class StepHeader extends StatelessWidget {
   const StepHeader({super.key, required this.active});
   final int active;
-  static const labels = ['图纸导入', '整理色号', '剪裁图例', '效果校对'];
+  static const labels = ['导入图纸', '圈定范围', '检查切片', '单格校对'];
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.fromLTRB(14, 6, 14, 18),
@@ -188,7 +199,14 @@ class _ImportScreenState extends State<ImportScreen> {
 
   @override
   Widget build(BuildContext context) => AppFrame(
-        title: '图纸导入',
+        title: '导入图纸',
+      trailing: IconButton(
+        tooltip: '我的图纸',
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => MyProjectsScreen(colors: widget.colors)),
+        ),
+        icon: const Icon(Icons.folder_open_rounded, color: purple),
+      ),
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 18),
           children: [
@@ -273,7 +291,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     final sorted = widget.project.counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return AppFrame(
-      title: '图纸识别结果',
+      title: '待校对格子',
       onBack: () => Navigator.pop(context),
       body: ListView(padding: const EdgeInsets.symmetric(horizontal: 18), children: [
         Segments(labels: const ['原图', '像素图', '效果图'], selected: tab, onChanged: (value) => setState(() => tab = value)),
@@ -294,7 +312,7 @@ class _ResultScreenState extends State<ResultScreen> {
         ])),
         const SizedBox(height: 14),
       ]),
-      bottom: GradientButton(label: '下一步 · 开始整理色号', icon: Icons.grid_on_rounded, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EditorScreen(colors: widget.colors, project: widget.project)))),
+      bottom: GradientButton(label: '下一步 · 开始单格校对', icon: Icons.grid_on_rounded, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EditorScreen(colors: widget.colors, project: widget.project)))),
     );
   }
 }
@@ -340,7 +358,7 @@ class _EditorScreenState extends State<EditorScreen> {
     final palette = SizedBox(height: wide ? null : 88, width: wide ? 155 : null, child: ListView(scrollDirection: wide ? Axis.vertical : Axis.horizontal, children: sorted.map((entry) { final color = widget.colors.byId(entry.key); final selected = highlighted == entry.key; return Padding(padding: const EdgeInsets.all(4), child: InkWell(onTap: () => setState(() => highlighted = selected ? null : entry.key), child: Container(width: wide ? null : 104, padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: selected ? softPurple : Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: selected ? purple : const Color(0xFFE7E9F2))), child: Row(children: [Container(width: 38, height: 38, decoration: BoxDecoration(color: color.rgb, shape: BoxShape.circle, border: Border.all(color: Colors.black12))), const SizedBox(width: 8), Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(color.id, style: const TextStyle(fontWeight: FontWeight.w700)), Text(color.name, style: const TextStyle(fontSize: 12, color: muted))])])))); }).toList()));
     final board = Panel(child: LayoutBuilder(builder: (context, constraints) { final side = math.min(constraints.maxWidth, wide ? 610.0 : MediaQuery.sizeOf(context).width - 68); return Center(child: SizedBox(width: side, height: side, child: GestureDetector(onTapUp: (details) { final point = transform.toScene(details.localPosition); selectCell(Offset(point.dx / side, point.dy / side)); }, child: InteractiveViewer(transformationController: transform, minScale: .8, maxScale: 15, child: CustomPaint(size: Size.square(side), painter: BeadPainter(project: widget.project, colors: widget.colors, highlighted: highlighted, selectedRow: row, selectedColumn: column, effect: true))))); }));
     return AppFrame(
-      title: '效果校对',
+      title: '单格校对',
       onBack: () => Navigator.pop(context),
       body: ListView(padding: const EdgeInsets.symmetric(horizontal: 14), children: [
         Segments(labels: const ['原图', '像素图', '效果图'], selected: 2, onChanged: (_) {}),
@@ -358,7 +376,25 @@ class _EditorScreenState extends State<EditorScreen> {
         ])),
         const SizedBox(height: 12),
       ]),
-      bottom: GradientButton(label: '确认生成图纸', icon: Icons.grid_view_rounded, onTap: () async { final file = await ProjectStorage().save(widget.project); if (!context.mounted) return; await showDialog<void>(context: context, builder: (_) => AlertDialog(title: const Text('图纸已保存'), content: Text('已保存到本地：\n${file.path}'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('完成'))])); }),
+      bottom: GradientButton(label: '保存到我的图纸', icon: Icons.cloud_upload_rounded, onTap: () async {
+        try {
+          await CloudProjectStorage(widget.colors).save(widget.project);
+          await ProjectStorage().save(widget.project);
+          if (!context.mounted) return;
+          await showDialog<void>(context: context, builder: (_) => AlertDialog(
+            title: const Text('图纸已保存'),
+            content: const Text('已保存到当前账号，可在“我的图纸”中再次打开。'),
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('完成'))],
+          ));
+        } catch (error) {
+          if (!context.mounted) return;
+          await showDialog<void>(context: context, builder: (_) => AlertDialog(
+            title: const Text('云端保存失败'),
+            content: Text('图纸仍保留在当前页面。请检查网络和数据库配置后重试。\n$error'),
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('知道了'))],
+          ));
+        }
+      }),
     );
   }
 }

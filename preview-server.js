@@ -54,7 +54,8 @@ const server = http.createServer((request, response) => {
     if (pathname === '/preview/index.html') {
       try {
         const colorCard = JSON.stringify(JSON.parse(fs.readFileSync(path.join(root, 'color_card', 'MRAD_color.json'), 'utf8'))).replace(/</g, '\\u003c');
-        content = Buffer.from(String(content).replace('</head>', `<script id="mrad-color-card" type="application/json">${colorCard}</script></head>`));
+        const supabaseConfig = JSON.stringify({ url: localConfig.SUPABASE_URL || '', key: localConfig.SUPABASE_PUBLISHABLE_KEY || '' }).replace(/</g, '\\u003c');
+        content = Buffer.from(String(content).replace('</head>', `<script id="mrad-color-card" type="application/json">${colorCard}</script><script id="supabase-config" type="application/json">${supabaseConfig}</script></head>`));
       } catch (error) {
         console.error('[拼豆预览] 色卡装载失败：', error.message);
         response.writeHead(500).end('Color card unavailable');

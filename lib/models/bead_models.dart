@@ -52,6 +52,7 @@ class BeadProject {
     required this.sourcePath,
     this.lowConfidenceCells = const <int>{},
     DateTime? createdAt,
+    this.cloudId,
   }) : createdAt = createdAt ?? DateTime.now();
 
   String name;
@@ -61,6 +62,7 @@ class BeadProject {
   final String sourcePath;
   final Set<int> lowConfidenceCells;
   final DateTime createdAt;
+  String? cloudId;
 
   Map<String, int> get counts {
     final result = <String, int>{};
