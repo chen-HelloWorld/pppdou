@@ -24,6 +24,20 @@
 
 仓库包含一个仅用于视觉和交互验收的浏览器预览：`preview/index.html`。Windows 下双击项目根目录的 `启动电脑预览.cmd`，将自动启动本地静态服务并打开 `http://127.0.0.1:4174/preview/`。不要直接双击 `preview/index.html`，否则浏览器可能无法读取色卡。色卡成功加载后会缓存在本地，服务短暂中断时仍可继续识别。正式功能与打包仍以 Flutter 客户端为准。
 
+### 本地与 Render 配置
+
+本地预览读取项目根目录的 `.env.local`；Render 部署读取服务的 Environment Variables。两边使用相同的变量名，可以填写不同的值：
+
+```text
+PINDOU_AI_BASE_URL=AI 服务商的 API 基础地址
+PINDOU_AI_MODEL=模型名
+PINDOU_AI_API_KEY=AI 服务的密钥
+SUPABASE_URL=Supabase 项目地址
+SUPABASE_PUBLISHABLE_KEY=Supabase 发布密钥
+```
+
+本地 `.env.local` 优先于本机同名环境变量。Render 环境只使用 Render 提供的环境变量，并监听 Render 分配的端口。配置修改后需重启本地服务或重新部署 Render 服务。Render 的 Web Service 启动命令为 `node preview-server.js`。不要把 AI 密钥或 Supabase 的 secret/service_role 密钥放进前端或代码仓库。
+
 ```powershell
 flutter pub get
 flutter run -d windows

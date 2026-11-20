@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>导入图纸 · 设计稿</title>
+  <style>
+    :root{--ink:#302258;--muted:#766c90;--purple:#875bd4;--lav:#f3ebfd;--line:#ded2ef}
+    *{box-sizing:border-box}body{margin:0;background:#eee7f9;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink)}
+    .app{width:min(100%,430px);min-height:100dvh;margin:auto;padding:calc(20px + env(safe-area-inset-top)) 20px calc(102px + env(safe-area-inset-bottom));position:relative;overflow:hidden;background:linear-gradient(155deg,#fff 0%,#f4effc 42%,#fff 100%)}
+    .app:before{content:"";position:absolute;inset:0 0 auto;height:330px;pointer-events:none;opacity:.65;background:radial-gradient(circle at 88% 12%,#d9c4f6 0 2px,transparent 3px) 0 0/16px 16px,radial-gradient(ellipse at 30% -8%,#ffffffcc 0 34%,transparent 35%)}
+    header{height:54px;position:relative;z-index:1;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;margin-bottom:13px}header h1{margin:0;text-align:center;font-size:27px;letter-spacing:-.05em}.icon-btn{width:42px;height:42px;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--ink);font-size:32px;cursor:pointer}
+    .hero{position:relative;z-index:1;min-height:231px;padding:25px 22px;overflow:hidden;border:1px solid #ffffffbd;border-radius:27px;background:linear-gradient(135deg,#fdfaffef,#ede1fbdb);box-shadow:0 13px 28px #68469b12}.hero:after{content:"";position:absolute;left:-30px;right:-30px;bottom:-86px;height:160px;border-radius:50%;background:#d6b9f948}.hero h2{max-width:220px;margin:0;font-size:26px;line-height:1.36;letter-spacing:-.055em;position:relative;z-index:2}.hero p{max-width:217px;margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.55;position:relative;z-index:2}.bead-art{position:absolute;z-index:2;right:5px;bottom:8px;width:151px;height:151px;filter:drop-shadow(0 10px 9px #63418d2b);transform:rotate(4deg)}
+    .primary{position:relative;width:100%;height:74px;margin:20px 0 12px;border:0;border-radius:21px;background:linear-gradient(105deg,#aa6ee8,#5f83ef);color:white;box-shadow:0 10px 22px #7550bd2e;cursor:pointer}.primary strong{display:block;font-size:20px;font-weight:700}.primary strong span{font-size:25px;vertical-align:-2px;margin-right:9px}.primary small{display:block;margin-top:3px;font-size:11px;color:#ffffffcc}.feature-lock{display:grid;grid-template-columns:1fr 1fr;margin:0 0 22px;border:1px solid #e4dfee;border-radius:18px;background:#f8f7fbe0;overflow:hidden}.disabled{min-height:72px;display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:transparent;color:#aaa7b2;font-size:14px;font-weight:650;cursor:not-allowed}.disabled+ .disabled{border-left:1px solid #e4dfee}.disabled svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.8}.disabled small{display:none}
+    .tips{margin-top:0;padding:21px 23px;border-radius:23px;background:#fffdfef0;border:1px solid #ffffffc4;box-shadow:0 10px 24px #6b4a9410}.tips h3{margin:0 0 14px;font-size:21px;letter-spacing:-.04em}.tips p{position:relative;margin:0;padding:10px 0 10px 15px;color:#5e5668;font-size:14px}.tips p:before{content:"";position:absolute;left:0;top:19px;width:5px;height:5px;border-radius:50%;background:#a482d5}.tips p+p{border-top:1px solid #f0ebf5}.tips p:last-child{margin-bottom:0}
+    nav{position:absolute;z-index:3;left:20px;right:20px;bottom:calc(16px + env(safe-area-inset-bottom));height:72px;display:grid;grid-template-columns:1fr 1fr;padding:5px;border:1px solid #ffffffbc;border-radius:25px;background:#fffffff0;box-shadow:0 10px 28px #684b9518}.nav-item{display:grid;place-content:center;gap:2px;text-align:center;border-radius:20px;color:#93869d;font-size:14px;font-weight:650}.nav-item b{font-size:25px;line-height:25px}.nav-item.active{color:#7143c4;background:#efe3fc}
+    #file{display:none}.preview{display:none;position:fixed;z-index:5;inset:0;padding:24px;place-items:center;background:#24143d9c}.preview.show{display:grid}.preview-card{width:min(390px,100%);padding:18px;border-radius:24px;background:#fff}.preview-card img{display:block;width:100%;max-height:58dvh;object-fit:contain;border-radius:16px;background:#f5f0fb}.preview-card p{margin:14px 2px 0;color:#665a72;font-size:14px}.preview-card button{width:100%;height:48px;margin-top:14px;border:0;border-radius:15px;background:#875bd4;color:#fff;font:700 16px inherit;cursor:pointer}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header><button class="icon-btn" aria-label="返回">‹</button><h1>导入图纸</h1><span aria-hidden="true"></span></header>
+    <section class="hero">
+      <h2>导入你的拼豆图纸</h2>
+      <p>上传清晰图纸，自动识别网格与 MARD 色号</p>
+      <svg class="bead-art" viewBox="0 0 180 180" aria-hidden="true">
+        <rect x="23" y="18" width="135" height="142" rx="12" fill="#fffdfd" stroke="#c9b2ee" stroke-width="2"/>
+        <g stroke="#dcccf2" stroke-width="1"> <path d="M35 31h110M35 43h110M35 55h110M35 67h110M35 79h110M35 91h110M35 103h110M35 115h110M35 127h110M35 139h110"/><path d="M35 31v108M47 31v108M59 31v108M71 31v108M83 31v108M95 31v108M107 31v108M119 31v108M131 31v108M143 31v108"/></g>
+        <g fill="#563481"><circle cx="70" cy="64" r="7"/><circle cx="82" cy="55" r="7"/><circle cx="94" cy="55" r="7"/><circle cx="106" cy="64" r="7"/><circle cx="58" cy="78" r="7"/><circle cx="118" cy="78" r="7"/><circle cx="58" cy="91" r="7"/><circle cx="118" cy="91" r="7"/><circle cx="70" cy="116" r="7"/><circle cx="82" cy="125" r="7"/><circle cx="94" cy="125" r="7"/><circle cx="106" cy="116" r="7"/></g>
+        <g fill="#fff"><circle cx="70" cy="77" r="7"/><circle cx="82" cy="70" r="7"/><circle cx="94" cy="70" r="7"/><circle cx="106" cy="77" r="7"/><circle cx="70" cy="91" r="7"/><circle cx="82" cy="84" r="7"/><circle cx="94" cy="84" r="7"/><circle cx="106" cy="91" r="7"/><circle cx="70" cy="104" r="7"/><circle cx="82" cy="111" r="7"/><circle cx="94" cy="111" r="7"/><circle cx="106" cy="104" r="7"/></g>
+        <g fill="#f59abd"><circle cx="77" cy="91" r="4"/><circle cx="99" cy="91" r="4"/></g><g fill="#313047"><circle cx="79" cy="87" r="3"/><circle cx="97" cy="87" r="3"/><circle cx="88" cy="102" r="3"/></g>
+      </svg>
+    </section>
+    <button class="primary" id="pick"><strong><span>▧</span>从相册选择图片</strong><small>支持 JPG、PNG、WEBP</small></button>
+    <input id="file" type="file" accept="image/jpeg,image/png,image/webp">
+    <section class="feature-lock" aria-label="暂未开放的导入方式">
+      <button class="disabled" type="button" disabled><svg viewBox="0 0 48 48"><path d="M7 16h9l3-5h10l3 5h9v23H7z"/><circle cx="24" cy="28" r="7"/></svg>拍照导入</button>
+      <button class="disabled" type="button" disabled><svg viewBox="0 0 48 48"><path d="M6 14h14l4 4h18v20H6z"/></svg>选择文件</button>
+    </section>
+    <section class="tips"><h3>导入提示</h3><p>图片清晰、正面拍摄</p><p>避免反光、遮挡与透视变形</p><p>导入后可校正范围与格线</p></section>
+    <nav><div class="nav-item"><b>▱</b>我的图纸</div><div class="nav-item active"><b>⇧</b>导入图纸</div></nav>
+  </main>
+  <aside class="preview" id="preview"><div class="preview-card"><img id="previewImage" alt="待导入图纸预览"><p>已选择图片（此文件为独立设计稿，不会上传或保存数据）。</p><button id="closePreview">返回设计稿</button></div></aside>
+  <script>
+    const pick=document.querySelector('#pick'),file=document.querySelector('#file'),preview=document.querySelector('#preview'),image=document.querySelector('#previewImage');
+    pick.addEventListener('click',()=>file.click());
+    file.addEventListener('change',event=>{const selected=event.target.files[0];if(!selected)return;image.src=URL.createObjectURL(selected);preview.classList.add('show')});
+    document.querySelector('#closePreview').addEventListener('click',()=>{preview.classList.remove('show');if(image.src.startsWith('blob:'))URL.revokeObjectURL(image.src)});
+  </script>
+</body>
+</html>

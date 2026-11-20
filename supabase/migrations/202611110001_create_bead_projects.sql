@@ -13,6 +13,7 @@ create table if not exists public.projects (
   columns integer not null check (columns between 1 and 1000),
   palette_code text not null default 'MARD',
   palette_version text,
+  ai_token_usage bigint not null default 0 constraint projects_ai_token_usage_nonnegative check (ai_token_usage >= 0),
   schema_version integer not null default 1 check (schema_version > 0),
   source_image_path text,
   created_at timestamptz not null default now(),
