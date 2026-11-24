@@ -636,7 +636,7 @@
 7. beadColorIds 只列豆子格中可读的 MARD 色号，去重；图例或色卡上的色号不算。`,
     messages=[{role:'system',content:'你是严谨的拼豆图纸切割与色号分析模型。只输出可解析 JSON；色号必须来自豆子格中的印刷标注，不可凭颜色外观推测。'},{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:sourceCanvas.toDataURL('image/jpeg',.98)}}]}];
     let answer,response,body;
-    for(const maxTokens of [4000,8000]){
+    for(const maxTokens of [4000,14000]){
       response=await requestAi({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({max_tokens:maxTokens,messages})}),body=await response.text();
       if(!response.ok)throw new Error(describeAiFailure(response.status,body,'AI 图纸切割分析'));
       let result;
