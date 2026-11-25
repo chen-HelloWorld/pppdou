@@ -33,9 +33,10 @@ const server = http.createServer((request, response) => {
     if (!aiConfig.baseUrl || !aiConfig.model || !aiConfig.apiKey) { response.writeHead(503, {'Content-Type':'application/json'}).end(JSON.stringify({error:'AI 配置不完整'})); return; }
     const token = /^Bearer\s+(\S+)$/i.exec(request.headers.authorization || '')?.[1];
     if (!token || !config.SUPABASE_URL || !config.SUPABASE_PUBLISHABLE_KEY) { response.writeHead(401, {'Content-Type':'application/json'}).end(JSON.stringify({error:'请先登录后使用 AI 识别'})); return; }
-    let body = '';
-    request.on('data', chunk => { body += chunk; if (body.length > 8 * 1024 * 1024) request.destroy(); });
+    let body = '', tooLarge = false;
+    request.on('data', chunk => { if (tooLarge) return; body += chunk; if (body.length > 40 * 1024 * 1024) { tooLarge = true; body = ''; } });
     request.on('end', async () => {
+      if (tooLarge) { response.writeHead(413, {'Content-Type':'application/json'}).end(JSON.stringify({error:'图纸请求超过 40 MB，请裁剪更小的范围或压缩图片后重试'})); return; }
       try {
         const userResponse = await fetch(`${config.SUPABASE_URL.replace(/\/$/, '')}/auth/v1/user`, {headers:{apikey:config.SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${token}`}});
         if (!userResponse.ok) { response.writeHead(401, {'Content-Type':'application/json'}).end(JSON.stringify({error:'登录状态无效或已过期，请重新登录'})); return; }
